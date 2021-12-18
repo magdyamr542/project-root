@@ -7,17 +7,18 @@
     "forceConsistentCasingInFileNames": true,
     "importHelpers": true,
     "incremental": true,
-    "module": "commonjs",
+    "module": "CommonJS",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
+    "skipLibCheck": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outDir": "./dist",
     "removeComments": true,
     "resolveJsonModule": true,
-    "sourceMap": true,
     "strict": true,
+    "target": "es2017"
   },
   "exclude": ["node_modules", "dist"]
 }

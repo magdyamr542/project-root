@@ -63,14 +63,14 @@ const main = () => {
       }
     )
     .example(
-      "proot ./",
+      "pr register ./",
       "will save the path of the current directory as a project path"
     )
     .example(
-      "proot go",
+      "pr go",
       "will go to the root of the current project if its path was registered before"
     )
-    .scriptName("proot")
-    .usage("Usage: proot [command]").argv;
+    .scriptName("")
+    .usage("Usage: pr [command]").argv;
 };
 main();

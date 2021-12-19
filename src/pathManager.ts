@@ -1,3 +1,4 @@
+import { bold, green, grey, red } from "colors";
 import { truncate } from "fs/promises";
 import { EOL, homedir } from "os";
 import { Fs } from "./fs";
@@ -16,6 +17,18 @@ export class PathManager {
     return fileContent.split(EOL).filter((path) => path.length > 0);
   }
 
+  get successPrefix() {
+    return green("Success");
+  }
+
+  get errorPrefix() {
+    return bold(red("Error"));
+  }
+
+  get infoPrefix() {
+    return bold(grey("Info"));
+  }
+
   /**
    *  - Use the database of saved project roots to go to the root directory of the project
    *  - Print the directory to the console such that the bash script can cd to it.
@@ -24,13 +37,14 @@ export class PathManager {
     const fileContent = await this.getSavedData();
     const savedPaths = this.getSavedPaths(fileContent);
     if (savedPaths.length === 0) {
-      console.log("There are no registered projects.");
+      console.log(`${this.errorPrefix} there are no registered projects.`);
       return false;
     }
     const pathMatches = savedPaths.filter((path) => cwd.startsWith(path));
     if (pathMatches.length === 0) {
       console.log(
-        "The current directory does not belong to a registered project"
+        this.errorPrefix,
+        `${this.errorPrefix} the current directory does not belong to a registered project`
       );
       return false;
     }
@@ -64,12 +78,12 @@ export class PathManager {
           .join("");
 
         await this.fs.writeFile(this.storagePath, newContent, false);
-        console.log(`Deleted ${toDelete.size} paths:`);
+        console.log(`${this.successPrefix} deleted ${toDelete.size} paths:`);
         for (const deletedPath of toDelete) {
           console.log(deletedPath);
         }
       } else {
-        console.log("Nothing was deleted");
+        console.log(`${this.infoPrefix} nothing was deleted`);
       }
       return true;
     } catch (error) {
@@ -103,10 +117,10 @@ export class PathManager {
     const alreadyRegisteredPath = this.tryGetRegisteredPath(fileContent, path);
     if (alreadyRegisteredPath !== undefined) {
       console.log(
-        `The path ${path} is already a part of a registered project path ${alreadyRegisteredPath}`
+        `${this.errorPrefix} the path ${path} is already a part of a registered project path ${alreadyRegisteredPath}`
       );
       console.log(
-        `To see a list of all registered paths execute the list command`
+        `${this.infoPrefix} to see a list of all registered paths execute the list command`
       );
       return false;
     }
@@ -114,11 +128,13 @@ export class PathManager {
     try {
       await this.fs.writeFile(this.storagePath, path + EOL);
     } catch (error) {
-      console.log(`Could't write ${path} to ${this.storagePath}`);
+      console.log(
+        `${this.errorPrefix} could't write ${path} to ${this.storagePath}`
+      );
       return false;
     }
 
-    console.log(`Successfully registered ${path} as project root.`);
+    console.log(`${this.successPrefix} registered ${path} as project root.`);
     return true;
   }
 
@@ -132,11 +148,13 @@ export class PathManager {
   public async clear(): Promise<boolean> {
     try {
       await truncate(this.storagePath, 0);
-      console.log("Successfully cleared the database of saved project roots");
+      console.log(
+        `${this.successPrefix} cleared the database of saved project roots`
+      );
       return true;
     } catch {
       console.log(
-        "Couldn't clear the database of saved project roots. Does file exist ?"
+        `${this.errorPrefix} couldn't clear the database of saved project roots. Does file exist ?`
       );
       return false;
     }
@@ -149,12 +167,14 @@ export class PathManager {
         return true;
       } else if (statResult.isFile()) {
         console.log(
-          `The project root cannot be a file. It should be a directory`
+          `${this.errorPrefix} the project root cannot be a file. It should be a directory`
         );
         return false;
       }
     } else {
-      console.log(`The directory ${path} does not exist in the file system.`);
+      console.log(
+        `${this.errorPrefix} the directory ${path} does not exist in the file system.`
+      );
       return false;
     }
     return false;

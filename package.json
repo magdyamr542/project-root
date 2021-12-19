@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "mkbin": "ncc build dist/index.js -o bin"
+    "mkbin": "npx ncc build dist/index.js -o bin"
   },
   "keywords": [],
   "author": "",

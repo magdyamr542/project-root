@@ -1,20 +1,15 @@
-import {
-  access,
-  lstat,
-  mkdir,
-  readFile,
-  truncate,
-  writeFile,
-} from "fs/promises";
+import { truncate } from "fs/promises";
 import { EOL, homedir } from "os";
-import { join, resolve } from "path";
+import { Fs } from "./fs";
 
 export class PathManager {
   private readonly storageFile = "storage.txt";
   private storageDir = `${homedir()}/.proot`;
 
+  constructor(private readonly fs: Fs) {}
+
   private get storagePath() {
-    return join(this.storageDir, this.storageFile);
+    return this.fs.joinPath(this.storageDir, this.storageFile);
   }
 
   private getSavedPaths(fileContent: string) {
@@ -26,16 +21,16 @@ export class PathManager {
    *  - Print the directory to the console such that the bash script can cd to it.
    */
   public async go(cwd: string): Promise<boolean> {
-    const fileContent = await this.getFileContent();
+    const fileContent = await this.getSavedData();
     const savedPaths = this.getSavedPaths(fileContent);
     if (savedPaths.length === 0) {
-      console.log("There are no registered projects in the databse.");
+      console.log("There are no registered projects.");
       return false;
     }
     const pathMatches = savedPaths.filter((path) => cwd.startsWith(path));
     if (pathMatches.length === 0) {
       console.log(
-        "The current directory does not belong to a registered project root"
+        "The current directory does not belong to a registered project"
       );
       return false;
     }
@@ -53,11 +48,11 @@ export class PathManager {
 
   public async purge(): Promise<boolean> {
     try {
-      const fileContent = await this.getFileContent();
+      const fileContent = await this.getSavedData();
       const savedPaths = this.getSavedPaths(fileContent);
       const toDelete: Set<string> = new Set();
       for (const savedPath of savedPaths) {
-        const doesExist = await this.doesPathExist(savedPath);
+        const doesExist = await this.fs.doesPathExist(savedPath);
         if (!doesExist) {
           toDelete.add(savedPath);
         }
@@ -67,7 +62,8 @@ export class PathManager {
           .filter((path) => !toDelete.has(path))
           .map((path) => path + EOL)
           .join("");
-        await this.writeValue(newContent, false);
+
+        await this.fs.writeFile(this.storagePath, newContent, false);
         console.log(`Deleted ${toDelete.size} paths:`);
         for (const deletedPath of toDelete) {
           console.log(deletedPath);
@@ -87,8 +83,8 @@ export class PathManager {
    */
   public async registerProject(path: string): Promise<boolean> {
     // Make abs path
-    if (this.isRelativePath(path)) {
-      path = this.toAbsolutePath(path);
+    if (this.fs.isRelativePath(path)) {
+      path = this.fs.toAbsolutePath(path);
     }
 
     // Check that path exists
@@ -97,11 +93,11 @@ export class PathManager {
     }
 
     // Create storage dir if not exists
-    if (!(await this.doesStorageFileExist())) {
+    if (!(await this.fs.doesPathExist(this.storagePath))) {
       await this.prepareStorageDir();
     }
 
-    const fileContent = await this.getFileContent();
+    const fileContent = await this.getSavedData();
 
     // Don't handle nested cases.
     const alreadyRegisteredPath = this.tryGetRegisteredPath(fileContent, path);
@@ -116,19 +112,18 @@ export class PathManager {
     }
 
     try {
-      await this.writeValue(path + EOL);
+      await this.fs.writeFile(this.storagePath, path + EOL);
     } catch (error) {
       console.log(`Could't write ${path} to ${this.storagePath}`);
       return false;
     }
 
     console.log(`Successfully registered ${path} as project root.`);
-
     return true;
   }
 
   public async listProjects(): Promise<void> {
-    const fileContent = await this.getFileContent();
+    const fileContent = await this.getSavedData();
     for (const path of this.getSavedPaths(fileContent)) {
       console.log(path);
     }
@@ -147,34 +142,9 @@ export class PathManager {
     }
   }
 
-  private async doesStorageFileExist(): Promise<boolean> {
-    try {
-      await access(this.storagePath);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  private isRelativePath(path: string) {
-    return !path.startsWith("/");
-  }
-
-  private toAbsolutePath(path: string) {
-    return resolve(path);
-  }
-
-  private async doesPathExist(path: string): Promise<boolean> {
-    try {
-      await access(path);
-      return true;
-    } catch {
-      return false;
-    }
-  }
   private async validatePath(path: string) {
-    try {
-      const statResult = await lstat(path);
+    const statResult = await this.fs.statFile(path);
+    if (statResult) {
       if (statResult.isDirectory()) {
         return true;
       } else if (statResult.isFile()) {
@@ -183,19 +153,15 @@ export class PathManager {
         );
         return false;
       }
-    } catch {
+    } else {
       console.log(`The directory ${path} does not exist in the file system.`);
       return false;
     }
     return false;
   }
 
-  private async getFileContent(): Promise<string> {
-    try {
-      return (await readFile(this.storagePath)).toString();
-    } catch {
-      return "";
-    }
+  private async getSavedData(): Promise<string> {
+    return this.fs.readFileOrEmptyString(this.storagePath);
   }
 
   /**
@@ -214,14 +180,7 @@ export class PathManager {
     return undefined;
   }
 
-  private async writeValue(value: string, append = true) {
-    await writeFile(this.storagePath, value, {
-      encoding: "utf-8",
-      flag: append ? "a+" : "w",
-    });
-  }
-
   private async prepareStorageDir() {
-    await mkdir(this.storageDir, { recursive: true });
+    await this.fs.mkdir(this.storageDir);
   }
 }

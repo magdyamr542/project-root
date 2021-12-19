@@ -1,13 +1,14 @@
 import { EOL } from "os";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import { Fs } from "./fs";
 import { PathManager } from "./pathManager";
 import { registerCommandValidator } from "./validators";
 
 const fail = () => process.exit(1);
 
 const main = () => {
-  const pathManager = new PathManager();
+  const pathManager = new PathManager(new Fs());
   yargs(hideBin(process.argv))
     .command(
       "register [relative path]",

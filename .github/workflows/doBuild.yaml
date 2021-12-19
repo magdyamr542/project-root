@@ -12,11 +12,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
-        run: npx npm ci
+        run: npm ci
       - name: Transpile ts
         run: npm run build
       - name: Make binary
-        run: npm i -g ncc && npm run mkbin 
+        run: npm run mkbin 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:

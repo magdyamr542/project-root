@@ -11,7 +11,7 @@ const main = () => {
   const pathManager = new PathManager(new Fs());
   yargs(hideBin(process.argv))
     .command(
-      "register [relative path]",
+      "add [relative path]",
       `register the given path as a root of a project${EOL}`,
       {},
       async (argv: Record<string, unknown>) => {
@@ -63,14 +63,29 @@ const main = () => {
         }
       }
     )
+    .command(
+      "$0",
+      `the default command. equivalent to pr go.go to the root of this project${EOL}`,
+      () => {},
+      async () => {
+        if (!(await pathManager.go(process.cwd()))) {
+          fail();
+        }
+      }
+    )
     .example(
-      "pr register ./",
-      "will save the path of the current directory as a project path"
+      "pr",
+      `will go to the root of the current project if its path was registered before${EOL}`
     )
     .example(
       "pr go",
-      "will go to the root of the current project if its path was registered before"
+      `will go to the root of the current project if its path was registered before. Same as 'pr'${EOL}`
     )
+    .example(
+      "pr add ./",
+      `will save the path of the current directory as a project path${EOL}`
+    )
+    .example("pr list", "will list all registered paths")
     .scriptName("")
     .usage("Usage: pr [command]").argv;
 };

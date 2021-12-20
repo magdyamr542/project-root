@@ -27,16 +27,21 @@ const main = () => {
         }
       }
     )
-    .command("list", `list all saved project roots${EOL}`, {}, async () => {
-      await pathManager.listProjects();
-    })
-    .command("go", `go to the root of this project${EOL}`, {}, async () => {
+    .command(
+      ["list", "l"],
+      `list all saved project roots${EOL}`,
+      {},
+      async () => {
+        await pathManager.listProjects();
+      }
+    )
+    .command(["go"], `go to the root of this project${EOL}`, {}, async () => {
       if (!(await pathManager.go(process.cwd()))) {
         fail();
       }
     })
     .command(
-      "clear",
+      ["clear", "cl"],
       `clear the database of saved projects. Will delete everything. Use with CAUTION${EOL}`,
       {},
       async () => {
@@ -50,7 +55,7 @@ const main = () => {
       }
     )
     .command(
-      "purge",
+      ["purge", "p"],
       "delete all registered paths that no longer exist in the file system",
       {},
       async () => {

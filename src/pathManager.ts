@@ -43,7 +43,6 @@ export class PathManager {
     const pathMatches = savedPaths.filter((path) => cwd.startsWith(path));
     if (pathMatches.length === 0) {
       console.log(
-        this.errorPrefix,
         `${this.errorPrefix} the current directory does not belong to a registered project`
       );
       return false;

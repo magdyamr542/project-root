@@ -133,7 +133,7 @@ export class PathManager {
       return false;
     }
 
-    console.log(`${this.successPrefix} registered ${path} as project root.`);
+    console.log(`${this.successPrefix} Added ${path}`);
     return true;
   }
 

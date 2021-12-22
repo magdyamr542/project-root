@@ -1,4 +1,3 @@
-import { EOL } from "os";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { Fs } from "./fs";
@@ -12,7 +11,7 @@ const main = () => {
   yargs(hideBin(process.argv))
     .command(
       "add [relative path]",
-      `register the given path as a root of a project${EOL}`,
+      `register the given path as a root of a project`,
       {},
       async (argv: Record<string, unknown>) => {
         if (registerCommandValidator(argv.relativepath)) {
@@ -27,22 +26,17 @@ const main = () => {
         }
       }
     )
-    .command(
-      ["list", "l"],
-      `list all saved project roots${EOL}`,
-      {},
-      async () => {
-        await pathManager.listProjects();
-      }
-    )
-    .command(["go"], `go to the root of this project${EOL}`, {}, async () => {
+    .command(["list", "l"], `list all saved project roots`, {}, async () => {
+      await pathManager.listProjects();
+    })
+    .command(["go"], `go to the root of this project`, {}, async () => {
       if (!(await pathManager.go(process.cwd()))) {
         fail();
       }
     })
     .command(
       ["clear", "cl"],
-      `clear the database of saved projects. Will delete everything. Use with CAUTION${EOL}`,
+      `clear the database of saved projects. Will delete everything. Use with CAUTION`,
       {},
       async () => {
         try {
@@ -70,7 +64,7 @@ const main = () => {
     )
     .command(
       "$0",
-      `the default command. equivalent to pr go.go to the root of this project${EOL}`,
+      `the default command. equivalent to pr go.go to the root of this project`,
       () => {},
       async () => {
         if (!(await pathManager.go(process.cwd()))) {
@@ -80,15 +74,15 @@ const main = () => {
     )
     .example(
       "pr",
-      `will go to the root of the current project if its path was registered before${EOL}`
+      `will go to the root of the current project if its path was registered before`
     )
     .example(
       "pr go",
-      `will go to the root of the current project if its path was registered before. Same as 'pr'${EOL}`
+      `will go to the root of the current project if its path was registered before. Same as 'pr'`
     )
     .example(
       "pr add ./",
-      `will save the path of the current directory as a project path${EOL}`
+      `will save the path of the current directory as a project path`
     )
     .example("pr list", "will list all registered paths")
     .scriptName("")

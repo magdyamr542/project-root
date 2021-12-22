@@ -1,10 +1,14 @@
 # Project root
 
+![ok](./static/usage.gif)
+
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
 
 ## Introduction
+
+#### Stop wasting your time with `cd ../`
 
 - This enables you to return to the root directory of your project faster.
 - It's meant for people who find it annoying to type `cd ../` a lot of times `:D`

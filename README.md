@@ -2,8 +2,7 @@
 
 ![example workflow](https://github.com/magdyamr542/project-root/actions/workflows/doBuild.yaml/badge.svg)
 
-
-![ok](./static/usage.gif)
+[![usage.gif](https://s10.gifyu.com/images/usage.gif)](https://gifyu.com/image/SS7Df)
 
 - [Introduction](#introduction)
 - [Installation](#installation)

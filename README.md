@@ -4,6 +4,8 @@
 
 [![usage.gif](https://s10.gifyu.com/images/usage.gif)](https://gifyu.com/image/SS7Df)
 
+[![medium.gif](https://s10.gifyu.com/images/medium.gif)](https://gifyu.com/image/SS7eL)
+
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)

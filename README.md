@@ -2,7 +2,7 @@
 
 ![example workflow](https://github.com/magdyamr542/project-root/actions/workflows/doBuild.yaml/badge.svg)
 
-[![720.gif](https://s10.gifyu.com/images/720.gif)](https://gifyu.com/image/SSIS3)
+[![ezgif.com-gif-maker578618f2773b60af.gif](https://s10.gifyu.com/images/ezgif.com-gif-maker578618f2773b60af.gif)](https://gifyu.com/image/SSISi)
 
 - [Introduction](#introduction)
 - [Installation](#installation)

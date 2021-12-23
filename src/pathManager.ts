@@ -1,8 +1,7 @@
-import { bold, green, grey, red } from "colors";
+import { getColoredMessage } from "./colors";
 import { truncate } from "fs/promises";
-import { EOL, homedir } from "os";
 import { Fs } from "./fs";
-
+import { EOL , homedir} from "os";
 export class PathManager {
   private readonly storageFile = "storage.txt";
   private storageDir = `${homedir()}/.proot`;
@@ -18,15 +17,15 @@ export class PathManager {
   }
 
   get successPrefix() {
-    return green("Success");
+    return getColoredMessage("Success", "green");
   }
 
   get errorPrefix() {
-    return bold(red("Error"));
+    return getColoredMessage("Error", "red", true);
   }
 
   get infoPrefix() {
-    return bold(grey("Info"));
+    return getColoredMessage("Info", "grey", true);
   }
 
   /**

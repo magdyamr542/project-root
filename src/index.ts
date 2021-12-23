@@ -3,13 +3,14 @@ import { hideBin } from "yargs/helpers";
 import { Fs } from "./fs";
 import { PathManager } from "./pathManager";
 import { registerCommandValidator } from "./validators";
+import { getColoredMessage } from "./colors";
 
 const fail = () => process.exit(1);
 
 const main = () => {
   const pathManager = new PathManager(new Fs());
   yargs(hideBin(process.argv))
-    .command(
+              .command(
       "add [relative path]",
       `register the given path as a root of a project`,
       {},
@@ -66,9 +67,29 @@ const main = () => {
       "$0",
       `the default command. equivalent to pr go.go to the root of this project`,
       () => {},
-      async () => {
-        if (!(await pathManager.go(process.cwd()))) {
+      async (argv: Record<string, unknown>) => {
+        const wrongCommand =
+          argv["_"] && Array.isArray(argv["_"]) && argv["_"].length;
+        if (wrongCommand) {
+          console.log(
+            `${getColoredMessage(
+              "Error",
+              "red",
+              true
+            )} this command does not exist`
+          );
+          console.log(
+            `${getColoredMessage(
+              "Info",
+              "grey",
+              true
+            )} see the command 'pr help'`
+          );
           fail();
+        }
+
+        if (!(await pathManager.go(process.cwd()))) {
+            fail();
         }
       }
     )

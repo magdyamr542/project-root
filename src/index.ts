@@ -10,7 +10,7 @@ const fail = () => process.exit(1);
 const main = () => {
   const pathManager = new PathManager(new Fs());
   yargs(hideBin(process.argv))
-              .command(
+    .command(
       "add [relative path]",
       `register the given path as a root of a project`,
       {},
@@ -89,7 +89,7 @@ const main = () => {
         }
 
         if (!(await pathManager.go(process.cwd()))) {
-            fail();
+          fail();
         }
       }
     )

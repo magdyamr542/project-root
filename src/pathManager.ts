@@ -1,7 +1,7 @@
 import { getColoredMessage } from "./colors";
 import { truncate } from "fs/promises";
 import { Fs } from "./fs";
-import { EOL , homedir} from "os";
+import { EOL, homedir } from "os";
 export class PathManager {
   private readonly storageFile = "storage.txt";
   private storageDir = `${homedir()}/.proot`;

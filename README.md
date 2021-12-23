@@ -1,5 +1,8 @@
 # Project root
 
+![example workflow](https://github.com/magdyamr542/project-root/actions/workflows/doBuild.yaml/badge.svg)
+
+
 ![ok](./static/usage.gif)
 
 - [Introduction](#introduction)

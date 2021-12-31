@@ -136,10 +136,14 @@ export class PathManager {
     return true;
   }
 
-  public async listProjects(): Promise<void> {
+  public async listProjects(cwd: string): Promise<void> {
     const fileContent = await this.getSavedData();
     for (const path of this.getSavedPaths(fileContent)) {
-      console.log(path);
+      if (cwd.startsWith(path) && cwd.length >= path.length) {
+        console.log(path, getColoredMessage("[current]", "green", false));
+      } else {
+        console.log(path);
+      }
     }
   }
 

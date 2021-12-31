@@ -28,7 +28,7 @@ const main = () => {
       }
     )
     .command(["list", "l"], `list all saved project roots`, {}, async () => {
-      await pathManager.listProjects();
+      await pathManager.listProjects(process.cwd());
     })
     .command(["go"], `go to the root of this project`, {}, async () => {
       if (!(await pathManager.go(process.cwd()))) {

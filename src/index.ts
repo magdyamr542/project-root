@@ -31,9 +31,6 @@ const main = () => {
     .command(["list", "l"], `list all saved project roots`, {}, async () => {
       await pathManager.listProjects(process.cwd());
     })
-    .command(["update"], "update the tool (sync with github master branch)", {}, async () => {
-      spawn("./update.sh", { stdio: "inherit" });
-    })
     .command(["go"], `go to the root of this project`, {}, async () => {
       if (!(await pathManager.go(process.cwd()))) {
         fail();
@@ -95,6 +92,14 @@ const main = () => {
         if (!(await pathManager.go(process.cwd()))) {
           fail();
         }
+      }
+    )
+    .command(
+      ["update"],
+      "update the tool (sync with github master branch)",
+      {},
+      async () => {
+        spawn("./update.sh", { stdio: "inherit" });
       }
     )
     .example(

@@ -28,9 +28,14 @@ const main = () => {
         }
       }
     )
-    .command(["list", "l"], `list all saved project roots`, {}, async () => {
-      await pathManager.listProjects(process.cwd());
-    })
+    .command(
+      ["list", "l", "ls"],
+      `list all saved project roots`,
+      {},
+      async () => {
+        await pathManager.listProjects(process.cwd());
+      }
+    )
     .command(["go"], `go to the root of this project`, {}, async () => {
       if (!(await pathManager.go(process.cwd()))) {
         fail();
@@ -115,6 +120,10 @@ const main = () => {
       `will save the path of the current directory as a project path`
     )
     .example("pr list", "will list all registered paths")
+    .example(
+      "pr update",
+      "will pull the most recent code from github master branch and reinstall the tool"
+    )
     .scriptName("")
     .usage("Usage: pr [command]").argv;
 };

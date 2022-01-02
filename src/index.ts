@@ -4,6 +4,7 @@ import { Fs } from "./fs";
 import { PathManager } from "./pathManager";
 import { registerCommandValidator } from "./validators";
 import { getColoredMessage } from "./colors";
+import { spawn } from "child_process";
 
 const fail = () => process.exit(1);
 
@@ -29,6 +30,9 @@ const main = () => {
     )
     .command(["list", "l"], `list all saved project roots`, {}, async () => {
       await pathManager.listProjects(process.cwd());
+    })
+    .command(["update"], "update the tool (sync with github)", {}, async () => {
+      spawn("./update.sh", { stdio: "inherit" });
     })
     .command(["go"], `go to the root of this project`, {}, async () => {
       if (!(await pathManager.go(process.cwd()))) {

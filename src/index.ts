@@ -5,11 +5,14 @@ import { PathManager } from "./pathManager";
 import { registerCommandValidator } from "./validators";
 import { getColoredMessage } from "./colors";
 import { spawn } from "child_process";
+import { homedir } from "os";
+import { join } from "path";
 
 const fail = () => process.exit(1);
 
 const main = () => {
-  const pathManager = new PathManager(new Fs());
+  const fs = new Fs();
+  const pathManager = new PathManager(fs);
   yargs(hideBin(process.argv))
     .command(
       "add [relative path]",
@@ -104,7 +107,7 @@ const main = () => {
       "update the tool (sync with github master branch)",
       {},
       async () => {
-        spawn("./update.sh", { stdio: "inherit" });
+        spawn(join(fs.getAppDir(), "update.sh"), { stdio: "inherit" });
       }
     )
     .example(

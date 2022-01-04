@@ -9,7 +9,7 @@ export class PathManager {
   constructor(private readonly fs: Fs) {}
 
   private get storagePath() {
-    return this.fs.joinPath(this.storageDir, this.storageFile);
+    return this.fs.joinPath(this.fs.getAppDir(), this.storageFile);
   }
 
   private getSavedPaths(fileContent: string) {

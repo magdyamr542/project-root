@@ -1,6 +1,7 @@
 import { Stats } from "fs";
 import { access, lstat, mkdir, readFile, writeFile } from "fs/promises";
 import { join, resolve } from "path";
+import { homedir } from "os";
 
 export class Fs {
   public joinPath(...paths: string[]) {
@@ -49,5 +50,9 @@ export class Fs {
 
   public async mkdir(dirPath: string) {
     await mkdir(dirPath, { recursive: true });
+  }
+
+  public getAppDir(): string {
+    return join(homedir(), ".proot");
   }
 }

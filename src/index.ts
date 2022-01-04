@@ -5,7 +5,6 @@ import { PathManager } from "./pathManager";
 import { registerCommandValidator } from "./validators";
 import { getColoredMessage } from "./colors";
 import { spawn } from "child_process";
-import { homedir } from "os";
 import { join } from "path";
 
 const fail = () => process.exit(1);

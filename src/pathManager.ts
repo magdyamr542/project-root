@@ -143,8 +143,14 @@ export class PathManager {
   public async listProjects(cwd: string): Promise<void> {
     const fileContent = await this.getSavedData();
     for (const path of this.getSavedPaths(fileContent)) {
-      if (cwd.startsWith(path) && cwd.length >= path.length) {
-        console.log(path, getColoredMessage("[current]", "green", false));
+      if (cwd.startsWith(path)) {
+        // Determine if this is the current dir
+        const restOfPath = cwd.replace(path, "");
+        if (restOfPath.length === 0 || restOfPath.startsWith("/")) {
+          console.log(path, getColoredMessage("[current]", "green", false));
+        } else {
+          console.log(path);
+        }
       } else {
         console.log(path);
       }
@@ -200,7 +206,10 @@ export class PathManager {
     const savedRoots = this.getSavedPaths(storageContent);
     for (const savedRoot of savedRoots) {
       if (pathToRegister.startsWith(savedRoot)) {
-        return savedRoot;
+        const restOfPath = pathToRegister.replace(savedRoot, "");
+        if (restOfPath.length === 0 || restOfPath.indexOf("/") !== -1) {
+          return savedRoot;
+        }
       }
     }
     return undefined;

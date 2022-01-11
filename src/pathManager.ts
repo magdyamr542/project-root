@@ -76,7 +76,11 @@ export class PathManager {
           .join("");
 
         await this.fs.writeFile(this.storagePath, newContent, false);
-        console.log(`${this.successPrefix} deleted ${toDelete.size} paths:`);
+        console.log(
+          `${this.successPrefix} deleted ${toDelete.size} ${
+            toDelete.size > 1 ? "paths" : "path"
+          }`
+        );
         for (const deletedPath of toDelete) {
           console.log(deletedPath);
         }

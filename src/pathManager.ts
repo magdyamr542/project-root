@@ -138,18 +138,24 @@ export class PathManager {
   }
 
   public async listProjects(cwd: string): Promise<void> {
+    const logEntry = (index: number, text: string) =>
+      console.log(`${index} ${text}`);
     const fileContent = await this.getSavedData();
-    for (const path of this.getSavedPaths(fileContent)) {
+    for (const [index, path] of toEntries(this.getSavedPaths(fileContent))) {
       if (cwd.startsWith(path)) {
         // Determine if this is the current dir
         const restOfPath = cwd.replace(path, "");
         if (restOfPath.length === 0 || restOfPath.startsWith("/")) {
-          console.log(path, getColoredMessage("[current]", "green", false));
+          //console.log(path, getColoredMessage("[current]", "green", false));
+          logEntry(
+            index,
+            `${path} ${getColoredMessage("[current]", "green", false)}`
+          );
         } else {
-          console.log(path);
+          logEntry(index, path);
         }
       } else {
-        console.log(path);
+          logEntry(index, path);
       }
     }
   }
@@ -216,3 +222,7 @@ export class PathManager {
     await this.fs.mkdir(this.storageDir);
   }
 }
+
+const toEntries = <T>(a: T[]): (readonly [number, T])[] => {
+  return a.map((value, index) => [index, value] as const);
+};

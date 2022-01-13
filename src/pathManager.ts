@@ -155,7 +155,7 @@ export class PathManager {
           logEntry(index, path);
         }
       } else {
-          logEntry(index, path);
+        logEntry(index, path);
       }
     }
   }
@@ -197,6 +197,29 @@ export class PathManager {
 
   private async getSavedData(): Promise<string> {
     return this.fs.readFileOrEmptyString(this.storagePath);
+  }
+
+  public async removePaths(pathEnd: string): Promise<void> {
+    const fileContent = await this.getSavedData();
+    const savedPaths = this.getSavedPaths(fileContent);
+    const newPaths = savedPaths.filter((path) => !path.endsWith(pathEnd));
+    if (newPaths.length < savedPaths.length) {
+      const newContent = newPaths.map((path) => path + EOL).join("");
+      await this.fs.writeFile(this.storagePath, newContent, false);
+      console.log(
+        `${this.successPrefix} deleted ${savedPaths.length - newPaths.length} ${
+          savedPaths.length - newPaths.length > 1 ? "paths" : "path"
+        } `
+      );
+      const newPathsSet = new Set(newPaths);
+      for (const oldPath of savedPaths) {
+        if (!newPathsSet.has(oldPath)) {
+          console.log(oldPath);
+        }
+      }
+    } else {
+      console.log(`${this.infoPrefix} nothing was deleted`);
+    }
   }
 
   /**

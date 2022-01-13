@@ -38,6 +38,21 @@ const main = () => {
         await pathManager.listProjects(process.cwd());
       }
     )
+    .command(
+      ["remove [pathEnd]", "rm [pathEnd]"],
+      `removes all paths which end with [pathEnd]`,
+      {},
+      async (argv: Record<string, unknown>) => {
+        if (argv.pathEnd && (argv.pathEnd as string).length) {
+          await pathManager.removePaths(argv.pathEnd as string);
+        } else {
+          console.log(
+            getColoredMessage("Error", "red", true),
+            "you need to specify [pathEnd]"
+          );
+        }
+      }
+    )
     .command(["go"], `go to the root of this project`, {}, async () => {
       if (!(await pathManager.go(process.cwd()))) {
         fail();

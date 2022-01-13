@@ -119,10 +119,7 @@ export class PathManager {
     const alreadyRegisteredPath = this.tryGetRegisteredPath(fileContent, path);
     if (alreadyRegisteredPath !== undefined) {
       console.log(
-        `${this.errorPrefix} the path ${path} is already a part of a registered project path ${alreadyRegisteredPath}`
-      );
-      console.log(
-        `${this.infoPrefix} to see a list of all registered paths execute the list command`
+        `${this.errorPrefix} the path ${path} is already a part of a registered project path ${alreadyRegisteredPath}. to see a list of all registered paths execute the list command `
       );
       return false;
     }

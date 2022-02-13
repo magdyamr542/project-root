@@ -1,7 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"project-root/fs"
+)
 
 func main() {
-	fmt.Println("something")
+	dir, err := fs.GetHomeDir()
+	fmt.Println(dir, err)
 }

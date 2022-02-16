@@ -6,12 +6,10 @@ type AddCmd struct {
 }
 
 func (addCmd *AddCmd) Run() error {
-	println("TODO: implement add path", addCmd.Path)
-	return nil
+	return RegisterProject(addCmd.Path)
 }
 
 // Listing all paths
-
 type LsCmd struct{}
 
 func (lsCmd *LsCmd) Run() error {

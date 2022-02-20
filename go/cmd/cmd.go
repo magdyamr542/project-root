@@ -13,8 +13,7 @@ func (addCmd *AddCmd) Run() error {
 type LsCmd struct{}
 
 func (lsCmd *LsCmd) Run() error {
-	println("TODO: implement ls paths")
-	return nil
+	return ListProjects()
 }
 
 // Removing a path by its suffix

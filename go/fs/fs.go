@@ -65,6 +65,10 @@ func GetAbsPath(filePath string) (string, error) {
 	return filepath.Abs(filePath)
 }
 
+func Cwd() (string, error) {
+	return os.Getwd()
+}
+
 func IsRelativePath(filePath string) bool {
 	return !filepath.IsAbs(filePath)
 }
@@ -85,6 +89,7 @@ func GetStorageFile() (string, error) {
 	return path.Join(homePath, storageDir, storageFile), nil
 }
 
+// - reads the content of the passed path
 func GetContentOrEmptyString(path string) string {
 	text, err := ReadFile(path)
 	if err != nil {

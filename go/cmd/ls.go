@@ -7,11 +7,18 @@ import (
 	"strings"
 )
 
+// Listing all paths
+type LsCmd struct{}
+
+func (lsCmd *LsCmd) Run() error {
+	return listProjects()
+}
+
 func logEntry(index int, entry string) {
 	fmt.Println(index, entry)
 }
 
-func ListProjects() error {
+func listProjects() error {
 	// Get saved data
 	storageFile, err := fs.GetStorageFile()
 	if err != nil {

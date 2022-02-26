@@ -7,7 +7,16 @@ import (
 	"strings"
 )
 
-func RegisterProject(path string) error {
+// Adding a new path
+type AddCmd struct {
+	Path string `arg:"" name:"path" help:"Path to add" type:"path"`
+}
+
+func (addCmd *AddCmd) Run() error {
+	return registerProject(addCmd.Path)
+}
+
+func registerProject(path string) error {
 	// Turn to abs path
 	if fs.IsRelativePath(path) {
 		absPath, err := fs.GetAbsPath(path)

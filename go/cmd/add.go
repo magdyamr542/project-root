@@ -71,7 +71,7 @@ func registerProject(path string) error {
 		return err
 	}
 
-	fmt.Printf("Success Added %s", path)
+	fmt.Printf("added %v", path)
 
 	return nil
 }

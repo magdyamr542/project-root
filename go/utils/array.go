@@ -8,3 +8,12 @@ func Filter(array []string, predicate func(string) bool) (ret []string) {
 	}
 	return
 }
+
+func Contains(array []string, element string) bool {
+	for _, value := range array {
+		if value == element {
+			return true
+		}
+	}
+	return false
+}

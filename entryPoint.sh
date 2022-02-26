@@ -1,5 +1,5 @@
 function pr {
-    output=$(node ~/.proot/index.js $@)
+    output=$(./proot $@)
     retCode=$?
     if [[ ( $@ == "go" || $@ == "" ) && $retCode -eq 0 ]]; then
         # cd when go command. hide output

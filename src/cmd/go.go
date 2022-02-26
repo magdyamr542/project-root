@@ -2,8 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"project-root/fs"
-	"project-root/utils"
+	"project-root/src/fs"
+	"project-root/src/utils"
 	"sort"
 	"strings"
 )

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"project-root/cmd"
+	"project-root/src/cmd"
 
 	"github.com/alecthomas/kong"
 )

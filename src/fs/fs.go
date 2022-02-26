@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-var storageDir string = "Desktop/frontend_apps/project-root/go/proot"
+var storageDir string = ".proot"
 var storageFile string = "storage.txt"
 
 func ReadFile(filePath string) (string, error) {

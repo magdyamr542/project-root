@@ -52,7 +52,7 @@
       fi
   }
   ```
-1. Install the executable in www.google.com and put it in the directory `~/.proot`
+1. Install the `proot` executable from [here](https://github.com/magdyamr542/project-root/releases/tag/2.0)  and put it in the directory `~/.proot`
 1. Add `source ~/.proot/entryPoint.sh` to your `.bashrc` or `.zshrc`. (This step is important)
 1. Source your shell again or open a new terminal session.
 1. Use `pr help`

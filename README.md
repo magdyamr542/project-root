@@ -34,12 +34,27 @@
 
 ## Installation
 
-1. Clone the repo
-1. Node version > 16 is required.(Maybe it works with other versions too. can't guarantee )
-
-1. Run `./install.sh`
+1. Run `mkdir ~/.proot`
+1. Run `touch entryPoint.sh`
+1. Put this in the file  `entryPoint.sh`
+  ```bash
+  function pr {
+      output=$(./proot $@)
+      retCode=$?
+      if [[ ( $@ == "go" || $@ == "" ) && $retCode -eq 0 ]]; then
+          # cd when go command. hide output
+          cd $output
+      else
+          echo $output
+      fi
+      if [ $retCode -ne 0 ]; then
+          return $retCode
+      fi
+  }
+  ```
+1. Install the executable in www.google.com and put it in the directory `~/.proot`
 1. Add `source ~/.proot/entryPoint.sh` to your `.bashrc` or `.zshrc`. (This step is important)
-1. source your shell again or open a new terminal session.
+1. Source your shell again or open a new terminal session.
 1. Use `pr help`
 
 ## Usage

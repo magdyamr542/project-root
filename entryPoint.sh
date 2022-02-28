@@ -1,5 +1,5 @@
 function pr {
-    output=$(./proot $@)
+    output=$(~/.proot/proot $@)
     retCode=$?
     if [[ ( $@ == "go" || $@ == "" ) && $retCode -eq 0 ]]; then
         # cd when go command. hide output

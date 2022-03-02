@@ -41,7 +41,7 @@ func (goCmd *GoCmd) Run() error {
 	})
 
 	if len(pathMatches) == 0 {
-		return fmt.Errorf("the current directory does not belong to a registered project")
+		return fmt.Errorf("the current directory does not belong to a registered project. execute 'pr list' to see all paths")
 	}
 
 	// Take the longest match. should be only 1 path anyway as we are not handling nested roots.

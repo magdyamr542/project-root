@@ -90,7 +90,7 @@ func tryGetAlreadyRegisteredPath(savedData string, pathToRegister string) error 
 			if !strings.Contains(restOfPath, "/") && len(restOfPath) > 0 {
 				continue
 			}
-			return fmt.Errorf("error the path %v is already a part of a registered project path %v. to see a list of all registered paths execute the list command ", pathToRegister, entry)
+			return fmt.Errorf("the path %v is already a part of a registered project path %v. to see a list of all registered paths execute the list command ", pathToRegister, entry)
 		}
 	}
 

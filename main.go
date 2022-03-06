@@ -2,6 +2,7 @@ package main
 
 import (
 	"project-root/src/cmd"
+	"project-root/src/fs"
 
 	"github.com/alecthomas/kong"
 )
@@ -16,6 +17,7 @@ var CLI struct {
 
 func main() {
 	ctx := kong.Parse(&CLI)
+	ctx.BindTo(fs.DefaultFileSystem, (*fs.FileSystemHandler)(nil))
 	err := ctx.Run()
 	ctx.FatalIfErrorf(err)
 }

@@ -9,14 +9,14 @@ import (
 
 type ClearCmd struct{}
 
-func (clrCmd *ClearCmd) Run() error {
-	if err := clear(); err != nil {
+func (clrCmd *ClearCmd) Run(fs fs.FileSystemHandler) error {
+	if err := clear(fs); err != nil {
 		return fmt.Errorf("couldn't clear the database of saved project roots. Does file exist ?")
 	}
 	return nil
 }
 
-func clear() error {
+func clear(fs fs.FileSystemHandler) error {
 	// Get saved data
 	storageFile, err := fs.GetStorageFile()
 	if err != nil {

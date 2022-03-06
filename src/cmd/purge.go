@@ -12,7 +12,7 @@ type PurgeCmd struct{}
 
 // read the storage file and for each path that does not exist
 // in the fs anymore rm it.
-func (purgeCmd *PurgeCmd) Run() error {
+func (purgeCmd *PurgeCmd) Run(fs fs.FileSystemHandler) error {
 	// Get saved data
 	storageFile, err := fs.GetStorageFile()
 	if err != nil {

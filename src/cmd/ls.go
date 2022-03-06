@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"project-root/src/fs"
 	"project-root/src/utils"
 	"strings"
@@ -10,15 +12,15 @@ import (
 // Listing all paths
 type LsCmd struct{}
 
-func (lsCmd *LsCmd) Run() error {
-	return listProjects()
+func (lsCmd *LsCmd) Run(fs fs.FileSystemHandler) error {
+	return ListProjects(fs, os.Stdout)
 }
 
-func logEntry(index int, entry string) {
-	fmt.Println(index, entry)
+func logEntry(index int, entry string, writer io.Writer) {
+	fmt.Fprintln(writer, index, entry)
 }
 
-func listProjects() error {
+func ListProjects(fs fs.FileSystemHandler, writer io.Writer) error {
 	// Get saved data
 	storageFile, err := fs.GetStorageFile()
 	if err != nil {
@@ -44,13 +46,13 @@ func listProjects() error {
 			// Determine if this is the current dir
 			restOfPath := strings.Replace(cwd, entry, "", 1)
 			if len(restOfPath) == 0 || strings.HasPrefix(restOfPath, "/") {
-				logEntry(index, fmt.Sprintf("%v [current]", entry))
+				logEntry(index, fmt.Sprintf("%v [current]", entry), writer)
 			} else {
-				logEntry(index, entry)
+				logEntry(index, entry, writer)
 			}
 
 		} else {
-			logEntry(index, entry)
+			logEntry(index, entry, writer)
 		}
 	}
 

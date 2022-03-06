@@ -12,11 +12,11 @@ type AddCmd struct {
 	Path string `arg:"" name:"path" help:"Path to add" type:"path"`
 }
 
-func (addCmd *AddCmd) Run() error {
-	return registerProject(addCmd.Path)
+func (addCmd *AddCmd) Run(fs fs.FileSystemHandler) error {
+	return registerProject(addCmd.Path, fs)
 }
 
-func registerProject(path string) error {
+func registerProject(path string, fs fs.FileSystemHandler) error {
 	// Turn to abs path
 	if fs.IsRelativePath(path) {
 		absPath, err := fs.GetAbsPath(path)

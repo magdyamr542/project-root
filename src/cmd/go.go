@@ -14,7 +14,7 @@ type GoCmd struct{}
 
 // Use the database of saved project roots to go to the root directory of the project
 // Print the directory to the console such that the bash script can cd to it.
-func (goCmd *GoCmd) Run() error {
+func (goCmd *GoCmd) Run(fs fs.FileSystemHandler) error {
 	// Get saved data
 	storageFile, err := fs.GetStorageFile()
 	if err != nil {

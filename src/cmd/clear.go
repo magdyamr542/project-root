@@ -10,6 +10,11 @@ import (
 type ClearCmd struct{}
 
 func (clrCmd *ClearCmd) Run(fs fs.FileSystemHandler) error {
+	return Clear(fs)
+}
+
+func Clear(fs fs.FileSystemHandler) error {
+
 	if err := clear(fs); err != nil {
 		return fmt.Errorf("couldn't clear the database of saved project roots. Does file exist ?")
 	}

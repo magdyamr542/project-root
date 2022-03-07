@@ -23,7 +23,7 @@ func (goCmd *GoCmd) Run(fs fs.FileSystemHandler) error {
 
 	savedData := fs.GetContentOrEmptyString(storageFile)
 	if len(savedData) == 0 {
-		return fmt.Errorf("there are not registered paths.")
+		return fmt.Errorf("there are not registered paths")
 	}
 
 	savedEntries := utils.Filter(strings.Split(savedData, "\n"), func(entry string) bool {

@@ -28,126 +28,133 @@ func (fs *fsMockLsCmd) Cwd() (string, error) {
 	return fs.cwd, fs.err
 }
 
-func TestLsCmd_lists_all_saved_paths(t *testing.T) {
-	fsMock := fsMockLsCmd{
-		content: "path1\npath2\npath3\n",
-	}
-	buffer := bytes.Buffer{}
-	cmd.ListProjects(&fsMock, &buffer)
-	want := `0 path1
+func TestLsCmd(t *testing.T) {
+
+	t.Run("lists all saved paths", func(t *testing.T) {
+
+		fsMock := fsMockLsCmd{
+			content: "path1\npath2\npath3\n",
+		}
+		buffer := bytes.Buffer{}
+		cmd.ListProjects(&fsMock, &buffer)
+		want := `0 path1
 1 path2
 2 path3
 `
-	got := buffer.String()
+		got := buffer.String()
 
-	if want != got {
-		t.Fatalf("expected %v but got %v", want, got)
-	}
+		if want != got {
+			t.Fatalf("expected %v but got %v", want, got)
+		}
+	})
 
-}
+	t.Run("returns empty string on empty storage", func(t *testing.T) {
+		fsMock := fsMockLsCmd{
+			content: "",
+		}
+		buffer := bytes.Buffer{}
+		cmd.ListProjects(&fsMock, &buffer)
+		want := ""
+		got := buffer.String()
+		if want != got {
+			t.Fatalf("expected %v but got %v", want, got)
+		}
 
-func TestLsCmd_returns_empty_string_on_empty_storage(t *testing.T) {
-	fsMock := fsMockLsCmd{
-		content: "",
-	}
-	buffer := bytes.Buffer{}
-	cmd.ListProjects(&fsMock, &buffer)
-	want := ""
-	got := buffer.String()
-	if want != got {
-		t.Fatalf("expected %v but got %v", want, got)
-	}
+	})
 
-}
+	t.Run("returns error if storage file not found", func(t *testing.T) {
+		fsMock := fsMockLsCmd{
+			content: "",
+			err:     errors.New("storage file not found"),
+		}
+		buffer := bytes.Buffer{}
+		err := cmd.ListProjects(&fsMock, &buffer)
 
-func TestLsCmd_returns_error_if_storage_file_not_found(t *testing.T) {
-	fsMock := fsMockLsCmd{
-		content: "",
-		err:     errors.New("storage file not found"),
-	}
-	buffer := bytes.Buffer{}
-	err := cmd.ListProjects(&fsMock, &buffer)
+		if buffer.Len() != 0 {
+			t.Fatalf("writer should be empty. file not found but it's not. it's value is %v", buffer.String())
+		}
 
-	if buffer.Len() != 0 {
-		t.Fatalf("writer should be empty. file not found but it's not. it's value is %v", buffer.String())
-	}
+		if err.Error() != "storage file not found" {
+			t.Fail()
+		}
 
-	if err.Error() != "storage file not found" {
-		t.Fail()
-	}
+	})
 
-}
-
-func TestLsCmd_appends_current_prefix_to_path_if_we_are_inside_it(t *testing.T) {
-	fsMock := fsMockLsCmd{
-		content: `path1
+	t.Run("appends current prefix to path if we are inside it", func(t *testing.T) {
+		fsMock := fsMockLsCmd{
+			content: `path1
 path2
 path3
 path4
 `,
-		err: nil,
-		cwd: "path2/some/file.go",
-	}
-	buffer := bytes.Buffer{}
+			err: nil,
+			cwd: "path2/some/file.go",
+		}
+		buffer := bytes.Buffer{}
 
-	cmd.ListProjects(&fsMock, &buffer)
-	want := `0 path1
+		cmd.ListProjects(&fsMock, &buffer)
+		want := `0 path1
 1 path2 [current]
 2 path3
 3 path4
 `
-	got := buffer.String()
-	if want != got {
-		t.Fatalf("expected %v but got %v", want, got)
-	}
-}
+		got := buffer.String()
+		if want != got {
+			t.Fatalf("expected %v but got %v", want, got)
+		}
 
-func TestLsCmd_appends_current_prefix_to_path_if_we_are_inside_it_second_case(t *testing.T) {
-	fsMock := fsMockLsCmd{
-		content: `path1
+	})
+
+	t.Run("appends current prefix to path if we are inside it second case", func(t *testing.T) {
+		fsMock := fsMockLsCmd{
+			content: `path1
 path2
 path3
 path4
 `,
-		err: nil,
-		cwd: "path2",
-	}
-	buffer := bytes.Buffer{}
+			err: nil,
+			cwd: "path2",
+		}
+		buffer := bytes.Buffer{}
 
-	cmd.ListProjects(&fsMock, &buffer)
-	want := `0 path1
+		cmd.ListProjects(&fsMock, &buffer)
+		want := `0 path1
 1 path2 [current]
 2 path3
 3 path4
 `
-	got := buffer.String()
-	if want != got {
-		t.Fatalf("expected %v but got %v", want, got)
-	}
-}
+		got := buffer.String()
+		if want != got {
+			t.Fatalf("expected %v but got %v", want, got)
+		}
+	})
 
-func TestLsCmd_appends_current_prefix_to_path_if_we_are_inside_it_third_case(t *testing.T) {
-	fsMock := fsMockLsCmd{
-		content: `path1
+	t.Run("appends current prefix to path if we are inside it third case", func(t *testing.T) {
+
+		fsMock := fsMockLsCmd{
+			content: `path1
 path2
 path2/dir1
 path3
 path4
 `,
-		err: nil,
-		cwd: "path2/dir1/dir2/dir3/",
-	}
-	buffer := bytes.Buffer{}
+			err: nil,
+			cwd: "path2/dir1/dir2/dir3/",
+		}
+		buffer := bytes.Buffer{}
 
-	cmd.ListProjects(&fsMock, &buffer)
-	want := `0 path1
+		cmd.ListProjects(&fsMock, &buffer)
+		want := `0 path1
 1 path2 [current]
 2 path2/dir1 [current]
 3 path3
 4 path4
 `
-	got := buffer.String()
-	if want != got {
-		t.Fatalf("expected %v but got %v", want, got)
-	}
+		got := buffer.String()
+		if want != got {
+			t.Fatalf("expected %v but got %v", want, got)
+		}
+
+	})
+
 }

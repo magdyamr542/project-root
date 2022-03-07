@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"project-root/src/fs"
 	"project-root/src/utils"
 	"sort"
@@ -15,6 +17,11 @@ type GoCmd struct{}
 // Use the database of saved project roots to go to the root directory of the project
 // Print the directory to the console such that the bash script can cd to it.
 func (goCmd *GoCmd) Run(fs fs.FileSystemHandler) error {
+
+	return Goto(fs, os.Stdout)
+}
+
+func Goto(fs fs.FileSystemHandler, writer io.Writer) error {
 	// Get saved data
 	storageFile, err := fs.GetStorageFile()
 	if err != nil {
@@ -23,7 +30,7 @@ func (goCmd *GoCmd) Run(fs fs.FileSystemHandler) error {
 
 	savedData := fs.GetContentOrEmptyString(storageFile)
 	if len(savedData) == 0 {
-		return fmt.Errorf("there are not registered paths")
+		return fmt.Errorf("there are no registered paths")
 	}
 
 	savedEntries := utils.Filter(strings.Split(savedData, "\n"), func(entry string) bool {
@@ -52,10 +59,10 @@ func (goCmd *GoCmd) Run(fs fs.FileSystemHandler) error {
 		sort.Slice(pathMatches, func(i, j int) bool {
 			return len(pathMatches[i]) < len(pathMatches[j])
 		})
-		gotoPath = pathMatches[0]
+		gotoPath = pathMatches[len(pathMatches)-1]
 	}
 
-	fmt.Printf("%v", gotoPath)
+	fmt.Fprintf(writer, "%v", gotoPath)
 
 	return nil
 }

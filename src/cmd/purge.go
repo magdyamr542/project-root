@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"project-root/src/fs"
 	"project-root/src/utils"
 	"strings"
@@ -13,6 +15,10 @@ type PurgeCmd struct{}
 // read the storage file and for each path that does not exist
 // in the fs anymore rm it.
 func (purgeCmd *PurgeCmd) Run(fs fs.FileSystemHandler) error {
+	return Purge(fs, os.Stdout)
+}
+
+func Purge(fs fs.FileSystemHandler, writer io.Writer) error {
 	// Get saved data
 	storageFile, err := fs.GetStorageFile()
 	if err != nil {
@@ -64,9 +70,9 @@ func (purgeCmd *PurgeCmd) Run(fs fs.FileSystemHandler) error {
 		pathStrings = "paths"
 	}
 
-	fmt.Println("deleted", len(entriesToDelete), pathStrings)
+	fmt.Fprintln(writer, "deleted", len(entriesToDelete), pathStrings)
 	for _, deletedPath := range entriesToDelete {
-		fmt.Printf("%v", deletedPath)
+		fmt.Fprintln(writer, deletedPath)
 	}
 
 	return nil

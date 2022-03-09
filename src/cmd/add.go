@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"os"
 	"project-root/src/fs"
 	"project-root/src/utils"
 	"strings"
@@ -13,10 +15,10 @@ type AddCmd struct {
 }
 
 func (addCmd *AddCmd) Run(fs fs.FileSystemHandler) error {
-	return registerProject(addCmd.Path, fs)
+	return RegisterProject(addCmd.Path, fs, os.Stdout)
 }
 
-func registerProject(path string, fs fs.FileSystemHandler) error {
+func RegisterProject(path string, fs fs.FileSystemHandler, writer io.Writer) error {
 	// Turn to abs path
 	if fs.IsRelativePath(path) {
 		absPath, err := fs.GetAbsPath(path)
@@ -71,7 +73,7 @@ func registerProject(path string, fs fs.FileSystemHandler) error {
 		return err
 	}
 
-	fmt.Printf("added %v", path)
+	fmt.Fprintf(writer, "added %v", path)
 
 	return nil
 }

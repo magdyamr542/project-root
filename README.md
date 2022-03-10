@@ -4,9 +4,11 @@
 
 [![ezgif.com-gif-maker578618f2773b60af.gif](https://s10.gifyu.com/images/ezgif.com-gif-maker578618f2773b60af.gif)](https://gifyu.com/image/SSISi)
 
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [Usage](#usage)
+- [Project root](#project-root)
+	- [Introduction](#introduction)
+			- [Stop wasting your time with `cd ../`](#stop-wasting-your-time-with-cd-)
+	- [Installation](#installation)
+	- [Usage](#usage)
 
 ## Introduction
 
@@ -36,26 +38,28 @@
 
 1. Run `mkdir ~/.proot`
 1. Run `touch entryPoint.sh`
-1. Put this in the file  `entryPoint.sh`
-  ```bash
-  function pr {
-      output=$(~/.proot/proot $@)
-      retCode=$?
-      if [[ ( $@ == "go" || $@ == "" ) && $retCode -eq 0 ]]; then
-          # cd when go command. hide output
-          cd $output
-      else
-          echo $output
-      fi
-      if [ $retCode -ne 0 ]; then
-          return $retCode
-      fi
-  }
-  ```
-1. Install the `proot` executable from [here](https://github.com/magdyamr542/project-root/releases/tag/2.0)  and put it in the directory `~/.proot`
+1. Put this in the file `entryPoint.sh`
+
+```bash
+function pr {
+    output=$(~/.proot/proot $@)
+    retCode=$?
+    if [[ ( $@ == "go" || $@ == "" ) && $retCode -eq 0 ]]; then
+        # cd when go command. hide output
+        cd $output
+    else
+        echo $output
+    fi
+    if [ $retCode -ne 0 ]; then
+        return $retCode
+    fi
+}
+```
+
+1. Install the `proot` executable from [here](https://github.com/magdyamr542/project-root/releases/tag/2.0) and put it in the directory `~/.proot`
 1. Add `source ~/.proot/entryPoint.sh` to your `.bashrc` or `.zshrc`. (This step is important)
 1. Source your shell again or open a new terminal session.
-1. Use `pr help`
+1. Use `pr --help`
 
 ## Usage
 

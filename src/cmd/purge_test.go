@@ -5,53 +5,52 @@ import (
 	"project-root/src/cmd"
 	"project-root/src/fs"
 	"testing"
+
+	"github.com/stretchr/testify/mock"
 )
 
 type fsMockPurgeCmd struct {
 	fs.FileSystemHandler
-	storageFile string
-	content     string
-	pathsMap    map[string]bool // maps to false if the path does not exist
-	err         error
+	mock.Mock
 }
 
 func (fs *fsMockPurgeCmd) GetContentOrEmptyString(path string) string {
-	return fs.content
+	args := fs.Called(path)
+	return args.String(0)
 }
 
 func (fs *fsMockPurgeCmd) GetStorageFile() (string, error) {
-	return fs.storageFile, fs.err
+	args := fs.Called()
+	return args.String(0), args.Error(1)
 }
 
 func (fs *fsMockPurgeCmd) Exists(path string) (bool, error) {
-	exists, ok := fs.pathsMap[path]
-	return exists && ok, fs.err
+	args := fs.Called(path)
+	return args.Bool(0), args.Error(1)
 }
 
 func (fs *fsMockPurgeCmd) WriteFile(path string, content string, append bool) error {
-	return fs.err
+	args := fs.Called(path, content, append)
+	return args.Error(0)
 }
 
 func TestPurgeCmd(t *testing.T) {
 
 	t.Run("does not do anything if all saved paths still exist in the fs", func(t *testing.T) {
-		fsMock := fsMockPurgeCmd{
-			content: `path1
+		fsMock := new(fsMockPurgeCmd)
+		fsMock.On("GetContentOrEmptyString", "").Return(`path1
 path2
 path3
 path4
-`,
-			err: nil,
-			pathsMap: map[string]bool{
-				"path1": true,
-				"path2": true,
-				"path3": true,
-				"path4": true,
-			},
-		}
+`)
+		fsMock.On("Exists", "path1").Return(true, nil)
+		fsMock.On("Exists", "path2").Return(true, nil)
+		fsMock.On("Exists", "path3").Return(true, nil)
+		fsMock.On("Exists", "path4").Return(true, nil)
+		fsMock.On("GetStorageFile").Return("", nil)
 		buffer := bytes.Buffer{}
 
-		cmd.Purge(&fsMock, &buffer)
+		cmd.Purge(fsMock, &buffer)
 		want := ""
 		got := buffer.String()
 		if want != got {
@@ -61,23 +60,24 @@ path4
 	})
 
 	t.Run("deletes all paths which were saved before but does not exist in the fs anymore", func(t *testing.T) {
-		fsMock := fsMockPurgeCmd{
-			content: `path1
+
+		fsMock := new(fsMockPurgeCmd)
+
+		fsMock.On("GetStorageFile").Return("", nil)
+		fsMock.On("GetContentOrEmptyString", "").Return(`path1
 path2
 path3
 path4
-`,
-			err: nil,
-			pathsMap: map[string]bool{
-				"path1": false,
-				"path2": true,
-				"path3": false,
-				"path4": true,
-			},
-		}
+`)
+		fsMock.On("Exists", "path1").Return(false, nil)
+		fsMock.On("Exists", "path2").Return(true, nil)
+		fsMock.On("Exists", "path3").Return(false, nil)
+		fsMock.On("Exists", "path4").Return(true, nil)
+
+		fsMock.On("WriteFile", "", "path2\npath4", false).Return(nil)
 		buffer := bytes.Buffer{}
 
-		cmd.Purge(&fsMock, &buffer)
+		cmd.Purge(fsMock, &buffer)
 		want := `deleted 2 paths
 path1
 path3
@@ -90,23 +90,24 @@ path3
 	})
 
 	t.Run("deletes one path which was saved before but does not exist in the fs anymore", func(t *testing.T) {
-		fsMock := fsMockPurgeCmd{
-			content: `path1
+
+		fsMock := new(fsMockPurgeCmd)
+		fsMock.On("GetStorageFile").Return("", nil)
+		fsMock.On("GetContentOrEmptyString", "").Return(`path1
 path2
 path3
 path4
-`,
-			err: nil,
-			pathsMap: map[string]bool{
-				"path1": true,
-				"path2": true,
-				"path3": false,
-				"path4": true,
-			},
-		}
+`)
+
+		fsMock.On("Exists", "path1").Return(true, nil)
+		fsMock.On("Exists", "path2").Return(true, nil)
+		fsMock.On("Exists", "path3").Return(false, nil)
+		fsMock.On("Exists", "path4").Return(true, nil)
+
+		fsMock.On("WriteFile", "", "path1\npath2\npath4", false).Return(nil)
 		buffer := bytes.Buffer{}
 
-		cmd.Purge(&fsMock, &buffer)
+		cmd.Purge(fsMock, &buffer)
 		want := `deleted 1 path
 path3
 `

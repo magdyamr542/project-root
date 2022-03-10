@@ -8,37 +8,38 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 type fsMockLsCmd struct {
 	fs.FileSystemHandler
-	cwd         string
-	storageFile string
-	content     string
-	err         error
+	mock.Mock
 }
 
 func (fs *fsMockLsCmd) GetContentOrEmptyString(path string) string {
-	return fs.content
+	args := fs.Called(path)
+	return args.String(0)
 }
 
 func (fs *fsMockLsCmd) GetStorageFile() (string, error) {
-	return fs.storageFile, fs.err
+	args := fs.Called()
+	return args.String(0), args.Error(1)
 }
 
 func (fs *fsMockLsCmd) Cwd() (string, error) {
-	return fs.cwd, fs.err
+	args := fs.Called()
+	return args.String(0), args.Error(1)
 }
 
 func TestLsCmd(t *testing.T) {
 
 	t.Run("lists all saved paths", func(t *testing.T) {
-
-		fsMock := fsMockLsCmd{
-			content: "path1\npath2\npath3\n",
-		}
+		fsMock := new(fsMockLsCmd)
 		buffer := bytes.Buffer{}
-		cmd.ListProjects(&fsMock, &buffer)
+		fsMock.On("GetContentOrEmptyString", "").Return("path1\npath2\npath3\n")
+		fsMock.On("GetStorageFile").Return("", nil)
+		fsMock.On("Cwd").Return("", nil)
+		cmd.ListProjects(fsMock, &buffer)
 		want := `0 path1
 1 path2
 2 path3
@@ -50,25 +51,22 @@ func TestLsCmd(t *testing.T) {
 	})
 
 	t.Run("returns empty string on empty storage", func(t *testing.T) {
-		fsMock := fsMockLsCmd{
-			content: "",
-		}
+		fsMock := new(fsMockLsCmd)
 		buffer := bytes.Buffer{}
-		cmd.ListProjects(&fsMock, &buffer)
+		fsMock.On("GetContentOrEmptyString", "").Return("")
+		fsMock.On("GetStorageFile").Return("", nil)
+		cmd.ListProjects(fsMock, &buffer)
 		want := ""
 		got := buffer.String()
-
 		assert.Equal(t, want, got)
 
 	})
 
 	t.Run("returns error if storage file not found", func(t *testing.T) {
-		fsMock := fsMockLsCmd{
-			content: "",
-			err:     errors.New("storage file not found"),
-		}
+		fsMock := new(fsMockLsCmd)
+		fsMock.On("GetStorageFile").Return("", errors.New("storage file not found"))
 		buffer := bytes.Buffer{}
-		err := cmd.ListProjects(&fsMock, &buffer)
+		err := cmd.ListProjects(fsMock, &buffer)
 
 		assert.Len(t, buffer.String(), 0)
 		assert.EqualErrorf(t, err, "storage file not found", "wrong error")
@@ -76,18 +74,17 @@ func TestLsCmd(t *testing.T) {
 	})
 
 	t.Run("appends current prefix to path if we are inside it", func(t *testing.T) {
-		fsMock := fsMockLsCmd{
-			content: `path1
+		fsMock := new(fsMockLsCmd)
+		fsMock.On("GetStorageFile").Return("", nil)
+		fsMock.On("Cwd").Return("path2/some/file.go", nil)
+		fsMock.On("GetContentOrEmptyString", "").Return(`path1
 path2
 path3
 path4
-`,
-			err: nil,
-			cwd: "path2/some/file.go",
-		}
+`)
 		buffer := bytes.Buffer{}
 
-		cmd.ListProjects(&fsMock, &buffer)
+		cmd.ListProjects(fsMock, &buffer)
 		want := `0 path1
 1 path2 [current]
 2 path3
@@ -100,18 +97,18 @@ path4
 	})
 
 	t.Run("appends current prefix to path if we are inside it second case", func(t *testing.T) {
-		fsMock := fsMockLsCmd{
-			content: `path1
+
+		fsMock := new(fsMockLsCmd)
+		fsMock.On("GetStorageFile").Return("", nil)
+		fsMock.On("Cwd").Return("path2", nil)
+		fsMock.On("GetContentOrEmptyString", "").Return(`path1
 path2
 path3
 path4
-`,
-			err: nil,
-			cwd: "path2",
-		}
+`)
 		buffer := bytes.Buffer{}
 
-		cmd.ListProjects(&fsMock, &buffer)
+		cmd.ListProjects(fsMock, &buffer)
 		want := `0 path1
 1 path2 [current]
 2 path3
@@ -123,19 +120,18 @@ path4
 
 	t.Run("appends current prefix to path if we are inside it third case", func(t *testing.T) {
 
-		fsMock := fsMockLsCmd{
-			content: `path1
+		fsMock := new(fsMockLsCmd)
+		fsMock.On("GetStorageFile").Return("", nil)
+		fsMock.On("Cwd").Return("path2/dir1/dir2/dir3/", nil)
+		fsMock.On("GetContentOrEmptyString", "").Return(`path1
 path2
 path2/dir1
 path3
 path4
-`,
-			err: nil,
-			cwd: "path2/dir1/dir2/dir3/",
-		}
+`)
 		buffer := bytes.Buffer{}
 
-		cmd.ListProjects(&fsMock, &buffer)
+		cmd.ListProjects(fsMock, &buffer)
 		want := `0 path1
 1 path2 [current]
 2 path2/dir1 [current]

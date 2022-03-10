@@ -5,166 +5,134 @@ import (
 	"errors"
 	"project-root/src/cmd"
 	"project-root/src/fs"
-	"strconv"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 type fsMockAddCmd struct {
 	fs.FileSystemHandler
-	storageFile       string
-	getStorageFileErr error
-
-	makeDirError   error
-	writeFileArgs  []string
-	isRelativePath bool
-
-	exists      bool
-	existsError error
-
-	storageDir       string
-	getStorageDirErr error
-
-	content        string
-	writeFileError error
-	absPath        string
-	absPathError   error
+	mock.Mock
 }
 
 func (fs *fsMockAddCmd) GetStorageFile() (string, error) {
-	return fs.storageFile, fs.getStorageFileErr
+	args := fs.Called()
+	return args.String(0), args.Error(1)
 }
 
 func (fs *fsMockAddCmd) GetStorageDir() (string, error) {
-	return fs.storageDir, fs.getStorageDirErr
+	args := fs.Called()
+	return args.String(0), args.Error(1)
 }
 func (fs *fsMockAddCmd) MakeDir(path string) error {
-	return fs.makeDirError
+	args := fs.Called(path)
+	return args.Error(0)
 }
 func (fs *fsMockAddCmd) Exists(path string) (bool, error) {
-	return fs.exists, fs.existsError
+	args := fs.Called(path)
+	return args.Bool(0), args.Error(1)
 }
 
 func (fs *fsMockAddCmd) GetContentOrEmptyString(path string) string {
-	return fs.content
+	args := fs.Called(path)
+	return args.String(0)
 }
 func (fs *fsMockAddCmd) IsRelativePath(path string) bool {
-	return fs.isRelativePath
+	args := fs.Called(path)
+	return args.Bool(0)
 }
 func (fs *fsMockAddCmd) WriteFile(path string, content string, shouldAppend bool) error {
-	fs.writeFileArgs = append(fs.writeFileArgs, path, content, strconv.FormatBool(shouldAppend))
-	return fs.writeFileError
+	args := fs.Called(path, content, shouldAppend)
+	return args.Error(0)
 }
 
 func (fs *fsMockAddCmd) GetAbsPath(path string) (string, error) {
-	return fs.absPath, fs.absPathError
+	args := fs.Called(path)
+	return args.String(0), args.Error(1)
 }
 
 func TestAddCmd(t *testing.T) {
 
 	t.Run("returns error if there is an error making the relative path to abs path", func(t *testing.T) {
-		fsMock := fsMockAddCmd{
-			isRelativePath: true,
-			absPathError:   errors.New("could not make relative path to abs path"),
-		}
-
 		pathToAdd := "/path2"
+		fsMock := new(fsMockAddCmd)
+		fsMock.On("IsRelativePath", pathToAdd).Return(true)
+		fsMock.On("GetAbsPath", pathToAdd).Return("", errors.New("could not make relative path to abs path"))
 		buffer := bytes.Buffer{}
-		err := cmd.RegisterProject(pathToAdd, &fsMock, &buffer)
-
-		if err.Error() != "could not make relative path to abs path" {
-			t.Errorf("got wrong error %v", err.Error())
-		}
+		err := cmd.RegisterProject(pathToAdd, fsMock, &buffer)
+		assert.EqualError(t, err, "could not make relative path to abs path")
 
 	})
 
 	t.Run("returns error if exists func returns an error", func(t *testing.T) {
-		fsMock := fsMockAddCmd{
-			isRelativePath: false,
-			existsError:    errors.New("no such path in the fs"),
-		}
-
 		pathToAdd := "/path2"
-		buffer := bytes.Buffer{}
-		err := cmd.RegisterProject(pathToAdd, &fsMock, &buffer)
+		fsMock := new(fsMockAddCmd)
+		fsMock.On("IsRelativePath", pathToAdd).Return(false)
+		fsMock.On("GetAbsPath", pathToAdd).Return(true, errors.New("could not make relative path to abs path"))
+		fsMock.On("Exists", pathToAdd).Return(false, errors.New("no such file in the fs"))
 
-		if err.Error() != "no such path in the fs" {
-			t.Errorf("got wrong error %v", err.Error())
-		}
+		buffer := bytes.Buffer{}
+		err := cmd.RegisterProject(pathToAdd, fsMock, &buffer)
+
+		assert.EqualError(t, err, "no such file in the fs")
 
 	})
 
 	t.Run("returns error if the path is not in the fs", func(t *testing.T) {
-		fsMock := fsMockAddCmd{
-			isRelativePath: false,
-			exists:         false,
-		}
-
 		pathToAdd := "/path2"
+		fsMock := new(fsMockAddCmd)
+		fsMock.On("IsRelativePath", pathToAdd).Return(false)
+		fsMock.On("GetAbsPath", pathToAdd).Return(true, nil)
+		fsMock.On("Exists", pathToAdd).Return(false, nil)
 		buffer := bytes.Buffer{}
-		err := cmd.RegisterProject(pathToAdd, &fsMock, &buffer)
-
-		if err.Error() != "the path /path2 does not exist" {
-			t.Errorf("got wrong error %v", err.Error())
-		}
-
-	})
-
-	t.Run("adds the path if there is no nesting", func(t *testing.T) {
-		fsMock := fsMockAddCmd{
-			content:     "/path1",
-			exists:      true,
-			storageFile: "/path/to/storage/file",
-		}
-
-		pathToAdd := "/path2"
-		buffer := bytes.Buffer{}
-		err := cmd.RegisterProject(pathToAdd, &fsMock, &buffer)
-
-		if err != nil {
-			t.Errorf(err.Error())
-		}
-
-		if buffer.String() != "added /path2" {
-			t.Errorf("wrong buffer content %v", buffer.String())
-		}
-
-		storageFile := fsMock.writeFileArgs[0]
-		addedPath := fsMock.writeFileArgs[1]
-		shouldAppend := fsMock.writeFileArgs[2]
-
-		if storageFile != "/path/to/storage/file" {
-			t.Errorf("wrong storage file %v", storageFile)
-		}
-
-		if addedPath != "/path2\n" {
-			t.Errorf("wrong added path %v", addedPath)
-		}
-
-		if shouldAppend != "true" {
-			t.Errorf("wrong should append %v", shouldAppend)
-		}
+		err := cmd.RegisterProject(pathToAdd, fsMock, &buffer)
+		assert.EqualError(t, err, "the path /path2 does not exist")
 
 	})
 
 	t.Run("errors when there is nesting when adding the path", func(t *testing.T) {
-		fsMock := fsMockAddCmd{
-			content:     "/path1",
-			exists:      true,
-			storageFile: "/path/to/storage/file",
-		}
-
 		pathToAdd := "/path1/nested/dir"
+		storageDir := "/path/to/storage/dir"
+		fsMock := new(fsMockAddCmd)
+		fsMock.On("IsRelativePath", pathToAdd).Return(false)
+		fsMock.On("GetStorageFile").Return("/path/to/storage/file", nil)
+		fsMock.On("GetContentOrEmptyString", "/path/to/storage/file").Return("/path1")
+		fsMock.On("Exists", pathToAdd).Return(true, nil)
+		fsMock.On("Exists", storageDir).Return(true, nil)
+		fsMock.On("GetStorageDir").Return(storageDir, nil)
+
 		buffer := bytes.Buffer{}
-		err := cmd.RegisterProject(pathToAdd, &fsMock, &buffer)
+		err := cmd.RegisterProject(pathToAdd, fsMock, &buffer)
 
 		if err.Error() != "the path /path1/nested/dir is already a part of a registered project path /path1. to see a list of all registered paths execute the list command " {
 			t.Errorf(err.Error())
 		}
 
-		if len(buffer.String()) != 0 {
-			t.Errorf("wrong buffer content %v", buffer.String())
-		}
+		assert.EqualError(t, err, "the path /path1/nested/dir is already a part of a registered project path /path1. to see a list of all registered paths execute the list command ", "wrong error msg")
+		assert.Len(t, buffer.String(), 0)
 
+	})
+
+	t.Run("adds the path if there is no nesting", func(t *testing.T) {
+
+		pathToAdd := "/path2"
+		storageDir := "/path/to/storage/"
+		storageFile := "/path/to/storage/file"
+		fsMock := new(fsMockAddCmd)
+		fsMock.On("IsRelativePath", pathToAdd).Return(false)
+		fsMock.On("GetStorageFile").Return(storageFile, nil)
+		fsMock.On("GetContentOrEmptyString", storageFile).Return("/path1")
+		fsMock.On("Exists", pathToAdd).Return(true, nil)
+		fsMock.On("Exists", storageDir).Return(true, nil)
+		fsMock.On("GetStorageDir").Return(storageDir, nil)
+		fsMock.On("WriteFile", storageFile, "/path2\n", true).Return(nil)
+
+		buffer := bytes.Buffer{}
+		err := cmd.RegisterProject(pathToAdd, fsMock, &buffer)
+
+		assert.ErrorIs(t, err, nil, "error should have been nil")
+		assert.Equal(t, buffer.String(), "added /path2", "wrong buffer content")
 	})
 
 }

@@ -6,6 +6,8 @@ import (
 	"project-root/src/cmd"
 	"project-root/src/fs"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type fsMockLsCmd struct {
@@ -43,9 +45,8 @@ func TestLsCmd(t *testing.T) {
 `
 		got := buffer.String()
 
-		if want != got {
-			t.Fatalf("expected %v but got %v", want, got)
-		}
+		assert.Equal(t, want, got)
+
 	})
 
 	t.Run("returns empty string on empty storage", func(t *testing.T) {
@@ -56,9 +57,8 @@ func TestLsCmd(t *testing.T) {
 		cmd.ListProjects(&fsMock, &buffer)
 		want := ""
 		got := buffer.String()
-		if want != got {
-			t.Fatalf("expected %v but got %v", want, got)
-		}
+
+		assert.Equal(t, want, got)
 
 	})
 
@@ -70,13 +70,8 @@ func TestLsCmd(t *testing.T) {
 		buffer := bytes.Buffer{}
 		err := cmd.ListProjects(&fsMock, &buffer)
 
-		if buffer.Len() != 0 {
-			t.Fatalf("writer should be empty. file not found but it's not. it's value is %v", buffer.String())
-		}
-
-		if err.Error() != "storage file not found" {
-			t.Fail()
-		}
+		assert.Len(t, buffer.String(), 0)
+		assert.EqualErrorf(t, err, "storage file not found", "wrong error")
 
 	})
 
@@ -98,10 +93,9 @@ path4
 2 path3
 3 path4
 `
+
 		got := buffer.String()
-		if want != got {
-			t.Fatalf("expected %v but got %v", want, got)
-		}
+		assert.Equal(t, want, got)
 
 	})
 
@@ -124,9 +118,7 @@ path4
 3 path4
 `
 		got := buffer.String()
-		if want != got {
-			t.Fatalf("expected %v but got %v", want, got)
-		}
+		assert.Equal(t, want, got)
 	})
 
 	t.Run("appends current prefix to path if we are inside it third case", func(t *testing.T) {
@@ -151,9 +143,7 @@ path4
 4 path4
 `
 		got := buffer.String()
-		if want != got {
-			t.Fatalf("expected %v but got %v", want, got)
-		}
+		assert.Equal(t, want, got)
 
 	})
 

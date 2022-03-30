@@ -9,6 +9,7 @@ import (
 
 var storageDir string = ".proot"
 var storageFile string = "storage.txt"
+var lastPathFile string = "lastPath.txt"
 
 type FileSystemHandler interface {
 	ReadFile(path string) (string, error)
@@ -21,6 +22,7 @@ type FileSystemHandler interface {
 	IsRelativePath(path string) bool
 	GetStorageDir() (string, error)
 	GetStorageFile() (string, error)
+	GetLastPathFile() (string, error)
 	GetContentOrEmptyString(path string) string
 }
 
@@ -103,6 +105,14 @@ func (fs *FileSystem) GetStorageFile() (string, error) {
 		return "", err
 	}
 	return path.Join(homePath, storageDir, storageFile), nil
+}
+
+func (fs *FileSystem) GetLastPathFile() (string, error) {
+	homePath, err := fs.GetHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return path.Join(homePath, storageDir, lastPathFile), nil
 }
 
 // - reads the content of the passed path

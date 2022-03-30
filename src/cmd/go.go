@@ -62,6 +62,16 @@ func Goto(fs fs.FileSystemHandler, writer io.Writer) error {
 		gotoPath = pathMatches[len(pathMatches)-1]
 	}
 
+	// save the cwd as the last path we were at before going to the root
+	lastPathFile, err := fs.GetLastPathFile()
+	if err != nil {
+		return err
+	}
+	err = fs.WriteFile(lastPathFile, cwd, false)
+	if err != nil {
+		return err
+	}
+
 	fmt.Fprintf(writer, "%v", gotoPath)
 
 	return nil

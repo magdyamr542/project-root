@@ -13,6 +13,7 @@ var CLI struct {
 	Clear cmd.ClearCmd `cmd:"" help:"clears the database of saved projects. Will delete everything. Use with CAUTION" aliases:"clr"`
 	Go    cmd.GoCmd    `cmd:"" help:"go to the root of this project. (can be omitted which means 'pr=pr go')" default:"1"`
 	Purge cmd.PurgeCmd `cmd:"" help:"delete all registered paths that no longer exist in the file system"`
+	Back  cmd.BackCmd  `cmd:"" help:"go back to the place you went to the project root from" aliases:"b"`
 }
 
 func main() {

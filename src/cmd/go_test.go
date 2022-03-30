@@ -2,6 +2,7 @@ package cmd_test
 
 import (
 	"bytes"
+	"errors"
 	"project-root/src/cmd"
 	"project-root/src/fs"
 	"testing"
@@ -23,6 +24,16 @@ func (fs *fsMockGoCmd) GetContentOrEmptyString(path string) string {
 func (fs *fsMockGoCmd) GetStorageFile() (string, error) {
 	args := fs.Called()
 	return args.String(0), args.Error(1)
+}
+
+func (fs *fsMockGoCmd) GetLastPathFile() (string, error) {
+	args := fs.Called()
+	return args.String(0), args.Error(1)
+}
+
+func (fs *fsMockGoCmd) WriteFile(path string, content string, shouldAppend bool) error {
+	args := fs.Called(path, content, shouldAppend)
+	return args.Error(0)
 }
 
 func (fs *fsMockGoCmd) Cwd() (string, error) {
@@ -62,6 +73,8 @@ func TestGoCmd(t *testing.T) {
 		fsMock.On("GetStorageFile").Return("file", nil)
 		fsMock.On("GetContentOrEmptyString", "file").Return("/home/1\n/home/2\n")
 		fsMock.On("Cwd").Return("/home/1/some/nested/dir", nil)
+		fsMock.On("GetLastPathFile").Return("lastPathFile", nil)
+		fsMock.On("WriteFile", "lastPathFile", "/home/1/some/nested/dir", false).Return(nil)
 		buffer := bytes.Buffer{}
 
 		err := cmd.Goto(fsMock, &buffer)
@@ -81,6 +94,8 @@ func TestGoCmd(t *testing.T) {
 /home/1/2/3
 /home/1/2/3/4`)
 		fsMock.On("Cwd").Return("/home/1/2/3/5", nil)
+		fsMock.On("GetLastPathFile").Return("lastPathFile", nil)
+		fsMock.On("WriteFile", "lastPathFile", "/home/1/2/3/5", false).Return(nil)
 		buffer := bytes.Buffer{}
 
 		err := cmd.Goto(fsMock, &buffer)
@@ -90,6 +105,38 @@ func TestGoCmd(t *testing.T) {
 
 		assert.ErrorIs(t, err, nil)
 		assert.Equal(t, buffer.String(), "/home/1/2/3")
+
+	})
+
+	t.Run("writes the cwd to the lastPathFile", func(t *testing.T) {
+		fsMock := new(fsMockGoCmd)
+		fsMock.On("GetStorageFile").Return("file", nil)
+		fsMock.On("GetContentOrEmptyString", "file").Return(`/home/1/2
+/home/1/2/3
+/home/1/2/3/4`)
+		fsMock.On("Cwd").Return("/home/1/2/3/5", nil)
+		fsMock.On("GetLastPathFile").Return("lastPathFile.txt", nil)
+		fsMock.On("WriteFile", "lastPathFile.txt", "/home/1/2/3/5", false).Return(nil)
+
+		buffer := bytes.Buffer{}
+		err := cmd.Goto(fsMock, &buffer)
+		assert.ErrorIs(t, err, nil)
+
+	})
+
+	t.Run("returns error when failing to write the cwd to the last path file", func(t *testing.T) {
+		fsMock := new(fsMockGoCmd)
+		fsMock.On("GetStorageFile").Return("file", nil)
+		fsMock.On("GetContentOrEmptyString", "file").Return(`/home/1/2
+/home/1/2/3
+/home/1/2/3/4`)
+		fsMock.On("Cwd").Return("/home/1/2/3/5", nil)
+		fsMock.On("GetLastPathFile").Return("lastPathFile.txt", nil)
+		fsMock.On("WriteFile", "lastPathFile.txt", "/home/1/2/3/5", false).Return(errors.New("could not write to lastPathFile.txt"))
+
+		buffer := bytes.Buffer{}
+		err := cmd.Goto(fsMock, &buffer)
+		assert.EqualError(t, err, "could not write to lastPathFile.txt", "Wrongs error msg")
 
 	})
 

@@ -44,8 +44,8 @@
 function pr {
     output=$(~/.proot/proot $@)
     retCode=$?
-    if [[ ( $@ == "go" || $@ == "" ) && $retCode -eq 0 ]]; then
-        # cd when go command. hide output
+    if [[ ( $@ == "go" || $@ == "" || $@ == "back" || $@ == "b" ) && $retCode -eq 0 ]]; then
+        # cd when go or back command
         cd $output
     else
         echo $output
@@ -53,6 +53,7 @@ function pr {
     if [ $retCode -ne 0 ]; then
         return $retCode
     fi
+    
 }
 ```
 
@@ -68,3 +69,8 @@ function pr {
 1. Use `pr list` to list all saved project root paths.
 1. Use `pr purge` to delete any paths that were saved before but don't exist in the file system any more.
 1. Use `pr clear` to delete all saved paths. (use with **CAUTION**)
+1. Use `pr back` go back to the last path from which you used the `pr go` command
+    - let's say you are in `/home/user/project/src/utils` and you saved `/home/user/project/` as a project root
+    - Now you want to go back to the project root (to do something quickly) so you execute `pr go` or just `pr`
+    - What if you want to go back to `/home/user/project/src/utils` again to continue you work ? the `pr back` command helps with such case
+    - type `pr back` and it will cd to `/home/user/project/src/utils` automatically

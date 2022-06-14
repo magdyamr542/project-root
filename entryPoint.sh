@@ -1,7 +1,7 @@
 function pr {
     output=$(~/.proot/proot $@)
     retCode=$?
-    if [[ ( $@ == "go" || $@ == "" || $@ == "back" || $@ == "b" || $@ == "to" || $@ == "t" ) && $retCode -eq 0 ]]; then
+    if [[ ( $1 == "go" || $1 == "" || $1 == "back" || $1 == "b" || $1 == "to" || $1 == "t" ) && $retCode -eq 0 ]]; then
         # cd when go or back command. hide output
         cd $output
     else

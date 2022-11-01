@@ -6,6 +6,7 @@ import (
 	"os"
 	"project-root/src/fs"
 	"project-root/src/utils"
+	"sort"
 	"strings"
 )
 
@@ -40,6 +41,10 @@ func ListProjects(fs fs.FileSystemHandler, writer io.Writer) error {
 	if err != nil {
 		return err
 	}
+
+	sort.Slice(savedEntries, func(i, j int) bool {
+		return len(savedEntries[i]) < len(savedEntries[j])
+	})
 	// If the current dir is part of a saved path then mark it with [current]
 	for index, entry := range savedEntries {
 		if strings.HasPrefix(cwd, entry) {

@@ -134,9 +134,9 @@ path4
 		cmd.ListProjects(fsMock, &buffer)
 		want := `0 path1
 1 path2 [current]
-2 path2/dir1 [current]
-3 path3
-4 path4
+2 path3
+3 path4
+4 path2/dir1 [current]
 `
 		got := buffer.String()
 		assert.Equal(t, want, got)

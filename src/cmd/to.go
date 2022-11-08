@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+
 	"project-root/src/fs"
 	"project-root/src/utils"
 	"strings"
+
+	"github.com/lithammer/fuzzysearch/fuzzy"
 )
 
 // ToCmd uses the provided path prefix to go to a possible saved project
@@ -35,7 +38,7 @@ func To(fs fs.FileSystemHandler, pathPrefix string, writer io.Writer) error {
 	savedEntries := utils.Filter(strings.Split(savedData, "\n"), func(entry string) bool {
 		pathLower := strings.ToLower(entry)
 		prefixLower := strings.ToLower(pathPrefix)
-		return len(entry) != 0 && strings.Contains(pathLower, prefixLower)
+		return len(entry) != 0 && fuzzy.Match(prefixLower, pathLower)
 	})
 
 	if len(savedEntries) == 0 {

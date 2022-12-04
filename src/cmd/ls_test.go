@@ -40,9 +40,9 @@ func TestLsCmd(t *testing.T) {
 		fsMock.On("GetStorageFile").Return("", nil)
 		fsMock.On("Cwd").Return("", nil)
 		cmd.ListProjects(fsMock, &buffer)
-		want := `0 path1
-1 path2
-2 path3
+		want := `path1
+path2
+path3
 `
 		got := buffer.String()
 
@@ -85,10 +85,10 @@ path4
 		buffer := bytes.Buffer{}
 
 		cmd.ListProjects(fsMock, &buffer)
-		want := `0 path1
-1 path2 [current]
-2 path3
-3 path4
+		want := `path1
+path2 (current)
+path3
+path4
 `
 
 		got := buffer.String()
@@ -109,38 +109,13 @@ path4
 		buffer := bytes.Buffer{}
 
 		cmd.ListProjects(fsMock, &buffer)
-		want := `0 path1
-1 path2 [current]
-2 path3
-3 path4
-`
-		got := buffer.String()
-		assert.Equal(t, want, got)
-	})
-
-	t.Run("appends current prefix to path if we are inside it third case", func(t *testing.T) {
-
-		fsMock := new(fsMockLsCmd)
-		fsMock.On("GetStorageFile").Return("", nil)
-		fsMock.On("Cwd").Return("path2/dir1/dir2/dir3/", nil)
-		fsMock.On("GetContentOrEmptyString", "").Return(`path1
-path2
-path2/dir1
+		want := `path1
+path2 (current)
 path3
 path4
-`)
-		buffer := bytes.Buffer{}
-
-		cmd.ListProjects(fsMock, &buffer)
-		want := `0 path1
-1 path2 [current]
-2 path3
-3 path4
-4 path2/dir1 [current]
 `
 		got := buffer.String()
 		assert.Equal(t, want, got)
-
 	})
 
 }

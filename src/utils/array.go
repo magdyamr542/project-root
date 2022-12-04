@@ -17,3 +17,11 @@ func Contains(array []string, element string) bool {
 	}
 	return false
 }
+
+func Map(array []string, transformer func(string) string) []string {
+	var result []string
+	for _, s := range array {
+		result = append(result, transformer(s))
+	}
+	return result
+}

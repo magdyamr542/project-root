@@ -44,25 +44,15 @@ func ListProjects(fs fs.FileSystemHandler, writer io.Writer) error {
 		return err
 	}
 
-	sort.Slice(savedEntries, func(i, j int) bool {
-		return len(savedEntries[i]) < len(savedEntries[j])
+	savedEntries = utils.Map(savedEntries, func(entry string) string {
+		return filepath.Base(entry)
 	})
-	// If the current dir is part of a saved path then mark it with [current]
-	for index := range savedEntries {
-		entry := savedEntries[index]
-		baseName := filepath.Base(entry)
-		var toLog string
-		if strings.HasPrefix(cwd, entry) {
-			// Determine if this is the current dir
-			restOfPath := strings.Replace(cwd, entry, "", 1)
-			if len(restOfPath) == 0 || strings.HasPrefix(restOfPath, "/") {
-				toLog = fmt.Sprintf("%v [current]", baseName)
-			} else {
-				toLog = baseName
-			}
+	sort.Strings(savedEntries)
 
-		} else {
-			toLog = baseName
+	for index := range savedEntries {
+		toLog := savedEntries[index]
+		if strings.Contains(cwd, toLog) {
+			toLog += " (current)"
 		}
 
 		logEntry(toLog, writer)

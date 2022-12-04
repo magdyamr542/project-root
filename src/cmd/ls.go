@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"project-root/src/fs"
 	"project-root/src/utils"
 	"sort"
@@ -11,14 +12,15 @@ import (
 )
 
 // Listing all paths
-type LsCmd struct{}
+type LsCmd struct {
+}
 
 func (lsCmd *LsCmd) Run(fs fs.FileSystemHandler) error {
 	return ListProjects(fs, os.Stdout)
 }
 
-func logEntry(index int, entry string, writer io.Writer) {
-	fmt.Fprintln(writer, index, entry)
+func logEntry(entry string, writer io.Writer) {
+	fmt.Fprintln(writer, entry)
 }
 
 func ListProjects(fs fs.FileSystemHandler, writer io.Writer) error {
@@ -46,19 +48,24 @@ func ListProjects(fs fs.FileSystemHandler, writer io.Writer) error {
 		return len(savedEntries[i]) < len(savedEntries[j])
 	})
 	// If the current dir is part of a saved path then mark it with [current]
-	for index, entry := range savedEntries {
+	for index := range savedEntries {
+		entry := savedEntries[index]
+		baseName := filepath.Base(entry)
+		var toLog string
 		if strings.HasPrefix(cwd, entry) {
 			// Determine if this is the current dir
 			restOfPath := strings.Replace(cwd, entry, "", 1)
 			if len(restOfPath) == 0 || strings.HasPrefix(restOfPath, "/") {
-				logEntry(index, fmt.Sprintf("%v [current]", entry), writer)
+				toLog = fmt.Sprintf("%v [current]", baseName)
 			} else {
-				logEntry(index, entry, writer)
+				toLog = baseName
 			}
 
 		} else {
-			logEntry(index, entry, writer)
+			toLog = baseName
 		}
+
+		logEntry(toLog, writer)
 	}
 
 	return nil

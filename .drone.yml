@@ -5,9 +5,13 @@ name: default
 steps:
   - name: build
     image: golang:1.19
+    environment:
+      my_hard_secret:
+        from_secret: SUPER_HARD_SECRET
     commands:
       - go build
       - echo "Done building in $DRONE_BRANCH"
+      - echo "Logging my hard secret= $my_hard_secret"
 
   - name: test
     image: golang:1.19

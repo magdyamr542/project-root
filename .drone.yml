@@ -1,0 +1,20 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+  - name: build
+    image: golang:1.19
+    commands:
+      - go build
+      - echo "Done building in $DRONE_BRANCH"
+
+  - name: test
+    image: golang:1.19
+    commands:
+      - go test -v ./...
+
+trigger:
+  ref:
+    - refs/heads/feature-*
+    - refs/tags/*

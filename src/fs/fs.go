@@ -2,6 +2,7 @@ package fs
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -60,7 +61,7 @@ func (fs *FileSystem) WriteFile(filePath string, content string, append bool) er
 	}
 	defer f.Close()
 
-	if _, err = f.WriteString(content); err != nil {
+	if _, err = fmt.Fprintln(f, content); err != nil {
 		return err
 	}
 

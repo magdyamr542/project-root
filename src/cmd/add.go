@@ -22,10 +22,10 @@ func RegisterProject(path string, fs fs.FileSystemHandler, writer io.Writer) err
 	// Turn to abs path
 	if fs.IsRelativePath(path) {
 		absPath, err := fs.GetAbsPath(path)
-		path = absPath
 		if err != nil {
 			return err
 		}
+		path = absPath
 	}
 
 	// Check path exists
@@ -68,7 +68,7 @@ func RegisterProject(path string, fs fs.FileSystemHandler, writer io.Writer) err
 	}
 
 	// Append the new path to the storage file
-	err = fs.WriteFile(storageFile, path+"\n", true)
+	err = fs.WriteFile(storageFile, path, true)
 	if err != nil {
 		return err
 	}

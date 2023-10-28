@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"project-root/src/fs"
+	"github.com/magdyamr542/project-root/src/fs"
 )
 
 // Clearing the db

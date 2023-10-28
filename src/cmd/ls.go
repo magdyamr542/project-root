@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/magdyamr542/project-root/src/fs"
+	"github.com/magdyamr542/project-root/src/utils"
 	"io"
 	"os"
 	"path/filepath"
-	"project-root/src/fs"
-	"project-root/src/utils"
 	"sort"
 	"strings"
 )

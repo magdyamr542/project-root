@@ -2,9 +2,10 @@ package cmd_test
 
 import (
 	"errors"
-	"project-root/src/cmd"
-	"project-root/src/fs"
 	"testing"
+
+	"github.com/magdyamr542/project-root/src/cmd"
+	"github.com/magdyamr542/project-root/src/fs"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

@@ -5,8 +5,8 @@ import (
 	"io"
 	"os"
 
-	"project-root/src/fs"
-	"project-root/src/utils"
+	"github.com/magdyamr542/project-root/src/fs"
+	"github.com/magdyamr542/project-root/src/utils"
 	"strings"
 
 	"github.com/lithammer/fuzzysearch/fuzzy"

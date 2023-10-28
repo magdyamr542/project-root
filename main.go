@@ -1,8 +1,8 @@
 package main
 
 import (
-	"project-root/src/cmd"
-	"project-root/src/fs"
+	"github.com/magdyamr542/project-root/src/cmd"
+	"github.com/magdyamr542/project-root/src/fs"
 
 	"github.com/alecthomas/kong"
 )
